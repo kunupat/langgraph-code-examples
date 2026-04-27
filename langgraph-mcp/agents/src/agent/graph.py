@@ -176,7 +176,12 @@ def create_graph():
     logger.info("Initializing ReAct agent with MCP tools...")
 
     # Load tools from MCP server first
-    tools = asyncio.run(get_mcp_tools())
+    # Use asyncio.Runner() instead of asyncio.run() to preserve OpenTelemetry context
+    runner = asyncio.Runner()
+    try:
+        tools = runner.run(get_mcp_tools())
+    finally:
+        runner.close()
 
     # Build system prompt with tool information
     system_prompt = _build_system_prompt(tools)

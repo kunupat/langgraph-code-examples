@@ -153,6 +153,12 @@ async def get_mcp_tools():
         "langgraph-mcp-server": {
             "url": "http://localhost:8000/mcp",
             "transport": "http",
+        },
+        
+        "drawio": {
+            "command": "npx",
+            "args": ["@drawio/mcp"],
+            "transport": "stdio",
         }
     })
 

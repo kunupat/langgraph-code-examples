@@ -90,10 +90,15 @@ def create_graph():
     Returns:
         Compiled LangGraph agent.
     """
-    logger.info("Initializing Deep agent with MCP tools...")
+    logger.info("Initializing Deep agent With Skills with MCP tools...")
 
     # Load tools from MCP server first
-    tools = asyncio.run(get_mcp_tools())
+    # Use asyncio.Runner() instead of asyncio.run() to preserve OpenTelemetry context
+    runner = asyncio.Runner()
+    try:
+        tools = runner.run(get_mcp_tools())
+    finally:
+        runner.close()
 
     # Add local tools (not served by MCP)
     tools.append(internet_search)
@@ -172,10 +177,12 @@ def create_graph():
 
 # Create the graph instance
 try:
-    graph = create_graph().with_config({"callbacks": [langfuse_handler]})
-    logger.info("Deep Agent Graph compiled and ready")
+    # Only include langfuse_handler if it's not None
+    callbacks = [langfuse_handler] if langfuse_handler else []
+    graph = create_graph().with_config({"callbacks": callbacks})
+    logger.info("Deep Agent With Skills Graph compiled and ready")
 
 except Exception as e:
-    logger.error(f"Error creating graph: {e}")
+    logger.error(f"Error creating graph for Deep Agent With Skills: {e}")
     import traceback
     traceback.print_exc()
